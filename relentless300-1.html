@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="apple-mobile-web-app-title" content="R300"/>
+<meta name="theme-color" content="#050505"/>
+<title>RELENTLESS 300</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#050505;color:#dedede;font-family:'Unbounded',sans-serif;min-height:100vh;overscroll-behavior:none}
+button{font-family:'Unbounded',sans-serif;cursor:pointer}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:#0c0c0c}
+::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px}
+
+/* ── Layout ── */
+#header{position:sticky;top:0;z-index:100;background:#0c0c0c;border-bottom:1px solid #1e1e1e;padding:14px 16px 0}
+#header h1{font-size:16px;font-weight:900;letter-spacing:4px;color:#fff;text-shadow:0 0 28px rgba(204,34,0,.7);margin-bottom:2px}
+#header .sub{font-size:9px;color:#666;letter-spacing:1px;margin-bottom:10px}
+#header .sub span.w{color:#fff;text-shadow:0 0 5px rgba(255,255,255,.5)}
+#header .sub span.h{color:#ff8800}
+#header .sub span.r{color:#cc2200}
+#header .sub span.v{color:#ff3322}
+#tabs{display:flex}
+.tab-btn{padding:8px 14px;border:none;background:transparent;font-size:9px;letter-spacing:2px;color:#555;border-bottom:2px solid transparent;transition:color .1s}
+.tab-btn.active{color:#fff;border-bottom-color:#cc2200}
+#content{padding:14px;max-width:960px;margin:0 auto}
+
+/* ── Controls ── */
+.week-bar,.area-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.week-btn{padding:5px 12px;border-radius:2px;border:1px solid #1e1e1e;background:transparent;font-size:9px;letter-spacing:1px;color:#555}
+.week-btn.active{background:#cc2200;border-color:#cc2200;color:#fff}
+.area-btn{padding:4px 9px;border-radius:2px;border:1px solid #1e1e1e;background:transparent;font-size:9px;letter-spacing:.5px;color:#555}
+.view-btn{padding:5px 11px;border-radius:2px;border:1px solid #1e1e1e;background:transparent;font-size:9px;letter-spacing:.5px;color:#555}
+.divider{width:1px;background:#1e1e1e;margin:0 2px}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;min-width:440px}
+th{padding:7px 4px;font-size:9px;color:#555;background:#0c0c0c;border-bottom:1px solid #1e1e1e;letter-spacing:1px;white-space:nowrap}
+th.lbl{text-align:left;padding-left:6px;min-width:160px}
+td{padding:5px 4px;vertical-align:top;border-bottom:1px solid #161616}
+td.lbl{font-size:10px;color:#dedede;line-height:1.55;padding-left:6px;word-break:break-word;max-width:200px}
+.dow{font-size:8px;color:#555;letter-spacing:1px;display:block}
+.dn{font-size:11px;font-weight:900;text-align:center;display:block}
+.dn.today{color:#cc2200;text-shadow:0 0 8px rgba(204,34,0,.8)}
+.cell-center{text-align:center}
+.pct-val{font-size:10px;font-weight:700}
+
+/* ── Status button ── */
+.sbtn{width:34px;height:34px;border-radius:4px;border:1.5px solid #1e1e1e;background:transparent;color:#3a3a3a;font-size:12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;transition:all .1s}
+.sbtn.done{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.1);color:#fff;box-shadow:0 0 10px rgba(255,255,255,.25)}
+.sbtn.half{border-color:rgba(255,136,0,.5);background:rgba(255,136,0,.1);color:#ff8800}
+.sbtn.miss{border-color:rgba(204,34,0,.5);background:rgba(204,34,0,.1);color:#cc2200}
+.dash{color:#1a1a1a;font-size:10px}
+
+/* ── Task row ── */
+.task-row{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:4px;margin-bottom:3px;background:#161616;border:1px solid #1e1e1e}
+.task-row.overdue{background:#1a0000;border-color:#ff3322}
+.task-label{font-size:10px;color:#dedede;line-height:1.55;word-break:break-word}
+.task-label.overdue{color:#ff3322}
+.task-dl{font-size:9px;color:#555;margin-top:2px;letter-spacing:.5px}
+.task-dl.overdue{color:#ff3322}
+.task-nf{font-size:9px;color:#222;margin-top:2px}
+.area-pill{font-size:8px;padding:2px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+
+/* ── Collapsible section ── */
+.sec-btn{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:4px;border:1px solid #1e1e1e;background:#111;margin-bottom:5px}
+.sec-btn.open{border-color:#cc2200;background:#1a0500}
+.sec-label{font-size:10px;font-weight:900;letter-spacing:2px;color:#cc2200;min-width:70px;text-align:left}
+.sec-arrow{font-size:10px;color:#555;flex-shrink:0}
+.sec-pct{font-size:10px;font-weight:700;min-width:32px;text-align:right}
+
+/* ── Bar ── */
+.bar-wrap{flex:1;height:3px;background:#1e1e1e;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .3s}
+
+/* ── Area header ── */
+.area-hdr{display:flex;align-items:center;gap:7px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #222}
+.area-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.area-name{font-size:10px;font-weight:700;letter-spacing:2px}
+
+/* ── Chart ── */
+.chart-card{background:#111;border-radius:4px;border:1px solid #1e1e1e;padding:16px;margin-bottom:16px}
+.chart-title{font-size:9px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:12px}
+svg text{font-family:'Unbounded',sans-serif}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-line{width:14px;height:2.5px;border-radius:1px}
+.leg-lbl{font-size:8px;color:#555;letter-spacing:.5px}
+
+/* ── Global score ── */
+.global-card{padding:20px;border-radius:4px;background:#111;border:1px solid #1e1e1e;display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.global-num{font-size:54px;font-weight:900;line-height:1}
+.global-sub{font-size:9px;color:#555;margin-top:6px;letter-spacing:1px}
+.global-status{font-size:10px;font-weight:700;letter-spacing:1px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>RELENTLESS 300 <span style="font-size:9px;color:#cc2200;letter-spacing:3px">MAYO 2026</span></h1>
+  <div class="sub">
+    · → <span class="w">✓</span> hecho &nbsp;
+    <span class="h">½</span> a medias &nbsp;
+    <span class="r">✗</span> no hecho &nbsp;·&nbsp;
+    <span class="v">fondo rojo = vencido</span>
+  </div>
+  <div id="tabs">
+    <button class="tab-btn active" onclick="showTab('diario')">DIARIO</button>
+    <button class="tab-btn" onclick="showTab('semanal')">SEMANAL</button>
+    <button class="tab-btn" onclick="showTab('proyecto')">PROYECTOS</button>
+    <button class="tab-btn" onclick="showTab('grafica')">GRÁFICA</button>
+  </div>
+</div>
+
+<div id="content"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+const DOW7 = ["D","L","M","X","J","V","S"];
+const MAY = (()=>{
+  const out=[];
+  for(let d=4;d<=31;d++){
+    const date=new Date(2026,4,d);
+    const dow=DOW7[date.getDay()];
+    const wk=d<=10?1:d<=17?2:d<=24?3:4;
+    out.push({d,dow,week:wk,iso:`2026-05-${String(d).padStart(2,"0")}`});
+  }
+  return out;
+})();
+const TODAY="2026-05-05";
+
+const AREAS=["Personal","Espiritual","Físico","Universidad","Kairos","Stratium"];
+const AREA_COLOR={
+  Personal:"#ff4455",Espiritual:"#bb55ff",
+  Físico:"#ff6622",Universidad:"#ffaa00",
+  Kairos:"#ff2266",Stratium:"#ff4400"
+};
+
+const DAILY=[
+  {id:"d01",area:"Personal",   label:"Meditación",                                                    days:["D","L","M","X","J","V","S"]},
+  {id:"d02",area:"Personal",   label:"Anotar alimentos en MyFitnessPal (desayuno, merienda, cena)",    days:["D","L","M","X","J","V","S"]},
+  {id:"d03",area:"Personal",   label:"Mantener cuarto en orden",                                       days:["D","L","M","X","J","V","S"]},
+  {id:"d04",area:"Personal",   label:"Bloques Pomodoro — recuperar atención y enfoque",                days:["L","M","X","J","V"]},
+  {id:"d05",area:"Personal",   label:"Usar menos audífonos / aburrirme más",                           days:["L","M","X","J","V"]},
+  {id:"d06",area:"Espiritual", label:"Lectura Bíblica (mín. 5 días + días de reunión)",               days:["L","M","X","J","V"]},
+  {id:"d07",area:"Espiritual", label:"Adoración en familia (viernes)",                                 days:["V"]},
+  {id:"d08",area:"Espiritual", label:"Avisar a los acomodadores (jue + sáb)",                          days:["J","S"]},
+  {id:"d09",area:"Físico",     label:"Ducha fría",                                                     days:["D","L","M","X","J","V","S"]},
+  {id:"d10",area:"Físico",     label:"Cardio / Box (mín. 5 días)",                                     days:["L","M","X","V","S"]},
+  {id:"d11",area:"Físico",     label:"Comer 2,500 kcal (mín. 6 días)",                                 days:["D","L","M","X","J","V","S"]},
+  {id:"d12",area:"Físico",     label:"Ayuno (solo domingos)",                                          days:["D"]},
+  {id:"d13",area:"Físico",     label:"Gym — Empuje (lunes)",                                           days:["L"]},
+  {id:"d14",area:"Físico",     label:"Gym — Tracción / Jale (martes)",                                 days:["M"]},
+  {id:"d15",area:"Físico",     label:"Gym — Pierna (miércoles)",                                       days:["X"]},
+  {id:"d16",area:"Físico",     label:"Gym — Torso (viernes)",                                          days:["V"]},
+  {id:"d17",area:"Físico",     label:"Gym — Pierna 2ª (sábado)",                                       days:["S"]},
+  {id:"d18",area:"Stratium",   label:"APR: buscar noticias válidas (L·X·V) y que JC las apruebe",     days:["L","X","V"]},
+  {id:"d19",area:"Stratium",   label:"APR: crear banners tras aprobación (L·X·V)",                    days:["L","X","V"]},
+  {id:"d20",area:"Stratium",   label:"APR: reunión de seguimiento (mar y vie)",                        days:["M","V"]},
+  {id:"d21",area:"Stratium",   label:"APR: reporte semanal de campañas (viernes)",                     days:["V"]},
+];
+
+const WEEKLY=[
+  {id:"w01",area:"Personal",   label:"AppBlock: verificar regla mar-vie (redes/juegos solo tarde-noche)",    week:1},
+  {id:"w02",area:"Personal",   label:"AppBlock: verificar límite sáb/dom (máx 1 h 30 min)",                 week:1},
+  {id:"w03",area:"Personal",   label:"Borrar apps innecesarias del cel y iPad",                             week:1},
+  {id:"w04",area:"Personal",   label:"One Sec instalado en todas las apps dopamínicas",                     week:1},
+  {id:"w05",area:"Espiritual", label:"Preparar asignación: Tesoros de la Biblia (→ jue 14 mayo)",          week:2,deadline:"2026-05-14"},
+  {id:"w06",area:"Espiritual", label:"Preparar asignación: Sala B (→ jue 21 mayo)",                        week:3,deadline:"2026-05-21"},
+  {id:"w07",area:"Espiritual", label:"Preparar asignación: Perlas (→ jue 28 mayo)",                        week:4,deadline:"2026-05-28"},
+  {id:"w08",area:"Espiritual", label:"Programar visita pastoreo con Iván (Fam Diez — abuelos + César — y Fam Leija)",week:1,deadline:"2026-05-10"},
+  {id:"w09",area:"Espiritual", label:"Dar visita de pastoreo a Fam Diez",                                  week:2},
+  {id:"w10",area:"Espiritual", label:"Dar visita de pastoreo a Fam Leija",                                 week:2},
+  {id:"w11",area:"Espiritual", label:"Avisar que toca asear salón jue 14 (auditorio) — Grupo 2",           week:1,deadline:"2026-05-14"},
+  {id:"w12",area:"Espiritual", label:"Verificar enfermos, ausentes o necesidades en Grupo 2",              week:1},
+  {id:"w13",area:"Espiritual", label:"Revisita Sr. Guillermo: leer libro de Urbina, entender argumentos, verificar apertura; si está abierto ir sáb después de Enrique",week:1,deadline:"2026-05-10"},
+  {id:"w14",area:"Espiritual", label:"Revisita Enrique: ver si puede estudiar los sábados temprano",       week:1,deadline:"2026-05-10"},
+  {id:"w15",area:"Espiritual", label:"Revisita Sr. Lucio Morales: llamarle, vernos en salón (estudio sáb antes de reunión)",week:1,deadline:"2026-05-10"},
+  {id:"w16",area:"Espiritual", label:"Revisita Víctor: cuadrar cómo/cuándo/dónde vernos; preguntar si hay JW en Cuautitlán",week:1,deadline:"2026-05-10"},
+  {id:"w17",area:"Espiritual", label:"Revisita Jesús (vendedor): ver si está domingos y si se hace estudio",week:1,deadline:"2026-05-10"},
+  {id:"w18",area:"Espiritual", label:"Revisita Sr. Felipe: ver si puedo verlo mié/vie",                    week:1,deadline:"2026-05-10"},
+  {id:"w19",area:"Espiritual", label:"Revisita Guillermin: ver si puedo verlo mié/vie",                    week:1,deadline:"2026-05-10"},
+  {id:"w20",area:"Espiritual", label:"Revisita Hugo: cuadrar horarios (mar/jue mañana o mar/mié tarde)",   week:2},
+  {id:"w21",area:"Espiritual", label:"Literatura: limpiar basura de los estantes — traer a casa, dividir en 4 cuartos",week:1},
+  {id:"w22",area:"Espiritual", label:"Literatura: organizar todas las revistas de 50 en 50",               week:1},
+  {id:"w23",area:"Espiritual", label:"Literatura: investigar cómo mandar inventario en Hub",               week:1},
+  {id:"w24",area:"Espiritual", label:"Literatura: ordenar lista de publicaciones a pedir (cambiar formato para revistas)",week:1},
+  {id:"w25",area:"Espiritual", label:"Literatura: reunión con Dávila y asignados — afinar tareas (≥1 en pub/rev por reunión; ordenar estantes si no hay hermanos; libreta+pluma para inventario), horarios (avisar si no pueden), personas (Yedan, Roberto, Carlos; pedir eliminar Omar y Orlando, asignar Javier García o Daniel Maldonado)",week:2},
+  {id:"w26",area:"Espiritual", label:"Literatura: obtener cifras exactas de grupos para pub. de estudio", week:2},
+  {id:"w27",area:"Espiritual", label:"Literatura: entregar sobrantes de marzo-abril",                      week:1},
+  {id:"w28",area:"Espiritual", label:"Literatura: entregar con exactitud mayo-junio (que no sobren)",      week:2},
+  {id:"w29",area:"Espiritual", label:"Literatura: ordenar pub. de estudio por grupos de servicio (bimestral — principios de mayo)",week:1,deadline:"2026-05-10"},
+  {id:"w30",area:"Espiritual", label:"Literatura: inventario última semana del mes (ambos lugares) + enviar por Hub",week:4,deadline:"2026-05-28"},
+  {id:"w31",area:"Universidad",label:"Tarea U9 DPP",                                                       week:1,deadline:"2026-05-10"},
+  {id:"w32",area:"Universidad",label:"Tarea U10 CM",                                                       week:1,deadline:"2026-05-10"},
+  {id:"w33",area:"Universidad",label:"Tarea U10 DPP",                                                      week:1,deadline:"2026-05-10"},
+  {id:"w34",area:"Universidad",label:"Tarea U10 DF",                                                       week:1,deadline:"2026-05-10"},
+  {id:"w35",area:"Universidad",label:"Estudiar para examen DPP",                                           week:3},
+  {id:"w36",area:"Universidad",label:"Estudiar para examen DF",                                            week:3},
+  {id:"w37",area:"Universidad",label:"Estudiar para examen CM",                                            week:3},
+  {id:"w38",area:"Universidad",label:"Estudiar para examen DA",                                            week:3},
+  {id:"w39",area:"Universidad",label:"Examen DPP",                                                         week:4},
+  {id:"w40",area:"Universidad",label:"Examen DF",                                                          week:4},
+  {id:"w41",area:"Universidad",label:"Examen CM",                                                          week:4},
+  {id:"w42",area:"Universidad",label:"Examen DA",                                                          week:4},
+  {id:"w43",area:"Kairos",     label:"ICO Módulo 1 — hacer todos los ejercicios",                          week:1},
+  {id:"w44",area:"Kairos",     label:"ICO Módulo 2 — hacer todos los ejercicios",                          week:2},
+  {id:"w45",area:"Kairos",     label:"ICO Módulo 3 — hacer todos los ejercicios",                          week:3},
+  {id:"w46",area:"Kairos",     label:"ICO Módulo 4 — hacer todos los ejercicios",                          week:4},
+  {id:"w47",area:"Stratium",   label:"Stratium (cliente): editar contenido según el programa — semana 1",  week:1},
+  {id:"w48",area:"Stratium",   label:"Stratium (cliente): editar contenido según el programa — semana 2",  week:2},
+  {id:"w49",area:"Stratium",   label:"Stratium (cliente): editar contenido según el programa — semana 3",  week:3},
+];
+
+const ONCE=[
+  {id:"o01",area:"Kairos",    label:"⚡ Acabar Universidad de Marca Personal",                            deadline:"2026-05-05"},
+  {id:"o02",area:"Kairos",    label:"⚡ Repasar Metodología Viral Copy del libro",                        deadline:"2026-05-05"},
+  {id:"o03",area:"Kairos",    label:"⚡ Ver material del grupo de WhatsApp (Marca Personal)",             deadline:"2026-05-05"},
+  {id:"o04",area:"Kairos",    label:"⚡ Hacer estructura clara y específica de guiones",                  deadline:"2026-05-05"},
+  {id:"o05",area:"Kairos",    label:"⚡ Entrenar Brand Scaler en Claude (Torre APE, PPM, Estudio de Mercado, cliente ideal vs seguidor ideal, UMV, ideas ganadoras, estrategia de contenido)",deadline:"2026-05-05"},
+  {id:"o06",area:"Stratium",  label:"⚡ Completar estrategia Stratium previa a reunión con Mau",         deadline:"2026-05-05"},
+  {id:"o07",area:"Stratium",  label:"Reunión con Mau — afinar estrategia (mar 6)",                       deadline:"2026-05-06"},
+  {id:"o08",area:"Espiritual",label:"Mandar informes de servicio de Abril (Excel)",                      deadline:"2026-05-06"},
+  {id:"o09",area:"Personal",  label:"Pagar TDC de Coppel",                                               deadline:"2026-05-10"},
+  {id:"o10",area:"Espiritual",label:"Hablar con Díez de nuevo",                                          deadline:"2026-05-10"},
+  {id:"o11",area:"Stratium",  label:"APR: generar nueva estrategia LinkedIn Ads",                        deadline:"2026-05-10"},
+  {id:"o12",area:"Stratium",  label:"APR: planear nuevo creativo para obtener leads (imágenes + guión)", deadline:"2026-05-10"},
+  {id:"o13",area:"Stratium",  label:"APR: pedir que JC apruebe imágenes y guión",                       deadline:"2026-05-10"},
+  {id:"o14",area:"Espiritual",label:"Inventario literatura jue 7 — completar y ver si lo envía Dávila o yo",deadline:"2026-05-07"},
+  {id:"o15",area:"Stratium",  label:"APR: que JC apruebe los videos",                                    deadline:"2026-05-14"},
+  {id:"o16",area:"Stratium",  label:"APR: que JC apruebe el creativo final",                             deadline:"2026-05-14"},
+  {id:"o17",area:"Stratium",  label:"APR: poner campaña en marcha (mínimo 15 días)",                     deadline:"2026-05-17"},
+  {id:"o18",area:"Universidad",label:"Acabar 'Esto es Marketing' — Seth Godin",                          deadline:"2026-05-15"},
+  {id:"o19",area:"Universidad",label:"Crear estructura estratégica del libro (aplicable a cualquier negocio)",deadline:"2026-05-15"},
+  {id:"o20",area:"Universidad",label:"Aplicar estrategias del libro a Stratium y Kairos",                deadline:"2026-05-15"},
+  {id:"o21",area:"Kairos",    label:"ELOQUENTIA: acabar Stanislavski",                                    deadline:"2026-05-10"},
+  {id:"o22",area:"Kairos",    label:"ELOQUENTIA: acabar Linklater",                                       deadline:"2026-05-20"},
+  {id:"o23",area:"Kairos",    label:"ELOQUENTIA: acabar TED Talks",                                       deadline:"2026-05-31"},
+  {id:"o24",area:"Kairos",    label:"Asistir a 'Efecto Escenario' (23 y 24 de mayo)",                    deadline:"2026-05-24"},
+  {id:"o25",area:"Kairos",    label:"Sacar aprendizajes clave para Sistema Kairos (post-Escenario)",     deadline:"2026-05-25"},
+  {id:"o26",area:"Stratium",  label:"Ver webinar de Mau + instalar automatizaciones Manychat en Stratium",deadline:null},
+  {id:"o27",area:"Stratium",  label:"Participar en ATM de Díaz Lara",                                    deadline:null},
+  {id:"o28",area:"Stratium",  label:"Ver curso de Claude de Adrián Sáenz",                               deadline:null},
+  {id:"o29",area:"Stratium",  label:"Ver curso completo de LinkedIn Ads en YouTube",                     deadline:null},
+  {id:"o30",area:"Stratium",  label:"Completar SOP de LinkedIn y generar estrategia clara para cualquier anunciante",deadline:null},
+  {id:"o31",area:"Stratium",  label:"Entrenar a Orión en LinkedIn Ads",                                  deadline:null},
+  {id:"o32",area:"Stratium",  label:"Curso de Diego Nxt: aprender a crear videos con IA",                deadline:null},
+  {id:"o33",area:"Stratium",  label:"Entrenar chat Orión en creación de videos con IA",                  deadline:null},
+  {id:"o34",area:"Stratium",  label:"Hacer SOP para crear videos con IA",                                deadline:null},
+  {id:"o35",area:"Stratium",  label:"Crear chat Orión en Claude usando el Brand Scaler",                 deadline:null},
+  {id:"o36",area:"Stratium",  label:"Encontrar al menos 16 ideas ganadoras (4 videos/semana)",           deadline:null},
+  {id:"o37",area:"Stratium",  label:"Entregar Plan de Contenido para 90 días",                           deadline:null},
+  {id:"o38",area:"Stratium",  label:"Generar los primeros 12 guiones",                                   deadline:null},
+  {id:"o39",area:"Stratium",  label:"Pedir computadora luego de recibir pago y confirmación de los siguientes",deadline:null},
+  {id:"o40",area:"Stratium",  label:"Calufe: crear nuevo Business Manager",                              deadline:null},
+  {id:"o41",area:"Stratium",  label:"Calufe: crear nuevo Pixel e instalarlo",                            deadline:null},
+  {id:"o42",area:"Stratium",  label:"Calufe: crear nuevas cuentas (investigar cómo crecer cuentas de productos, no servicios)",deadline:null},
+  {id:"o43",area:"Stratium",  label:"Calufe: campañas — 1 video + 6 imágenes; seguimiento TOF; evaluar y modificar SOPs",deadline:null},
+  {id:"o44",area:"Stratium",  label:"Calufe: acceso LinkedIn — entender proceso B2B, crear campaña, creativos (1-2 videos y 3-4 fotos), que aprueben creativos",deadline:null},
+  {id:"o45",area:"Stratium",  label:"Calufe: aprobar repartición de presupuesto",                        deadline:null},
+  {id:"o46",area:"Stratium",  label:"APR: seguimiento a campaña LinkedIn Ads en curso",                  deadline:null},
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const SK="r300_may26_pwa_v1";
+let rec={};
+try{rec=JSON.parse(localStorage.getItem(SK)||"{}");}catch{}
+const save=()=>{try{localStorage.setItem(SK,JSON.stringify(rec));}catch{}};
+
+let curTab="diario", curWeek=1, curAf="Todas", curVm="todas";
+let openWk=1, openOa=null;
+const CYCLE=["","✓","½","✗"];
+
+function cycle(k){
+  const i=CYCLE.indexOf(rec[k]||"");
+  const v=CYCLE[(i+1)%CYCLE.length];
+  if(v==="")delete rec[k]; else rec[k]=v;
+  save();
+  render();
+}
+
+function sVal(s){return s==="✓"?1:s==="½"?0.5:0;}
+function isOD(dl){return dl&&dl<TODAY;}
+function pctCol(p){return p>=80?"#ffffff":p>=50?"#ff8800":p>0?"#cc2200":"#333";}
+
+// ═══════════════════════════════════════════════════════
+//  BUILDERS
+// ═══════════════════════════════════════════════════════
+function barHTML(pct,h=3){
+  const col=pct>=80?"linear-gradient(90deg,#aaa,#fff)":pct>=50?"#ff8800":pct>0?"#cc2200":"#1e1e1e";
+  const sh=pct>=80?"0 0 6px rgba(255,255,255,.3)":"none";
+  return `<div class="bar-wrap" style="height:${h}px"><div class="bar-fill" style="width:${pct}%;background:${col};box-shadow:${sh};min-width:${pct>0?2:0}px"></div></div>`;
+}
+
+function sbtnHTML(k){
+  const v=rec[k]||"";
+  const cls=v==="✓"?"done":v==="½"?"half":v==="✗"?"miss":"";
+  return `<button class="sbtn ${cls}" onclick="cycle('${k}')">${v||"·"}</button>`;
+}
+
+function taskRowHTML(k,label,deadline,showArea,area){
+  const v=rec[k]||"";
+  const od=isOD(deadline)&&v!=="✓";
+  const ac=AREA_COLOR[area]||"#ff4400";
+  const pill=showArea?`<span class="area-pill" style="background:${ac}18;color:${ac}">${area}</span>`:"";
+  const dl=deadline
+    ?`<div class="task-dl ${od?"overdue":""}">${od?"⚠ VENCIDO · ":""}${deadline}</div>`
+    :`<div class="task-nf">sin fecha fija</div>`;
+  return `<div class="task-row ${od?"overdue":""}">
+    ${sbtnHTML(k)}
+    <div style="flex:1;min-width:0">
+      <div class="task-label ${od?"overdue":""}">${label}</div>
+      ${dl}
+    </div>
+    ${pill}
+  </div>`;
+}
+
+function areaFilterHTML(){
+  const btns=["Todas",...AREAS].map(a=>{
+    const ac=AREA_COLOR[a]||"#cc2200";
+    const act=curAf===a;
+    return `<button class="area-btn" style="${act?`border-color:${ac};background:${ac}18;color:${ac}`:""}\" onclick="setAf('${a}')">${a}</button>`;
+  }).join("");
+  return `<div class="area-bar">${btns}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════
+function renderDiario(){
+  const wDays=MAY.filter(d=>d.week===curWeek);
+  const tasks=DAILY.filter(t=>curAf==="Todas"||t.area===curAf);
+
+  const weekBtns=[1,2,3,4].map(w=>`
+    <button class="week-btn ${curWeek===w?"active":""}" onclick="setWeek(${w})">S${w} — ${["4-10","11-17","18-24","25-31"][w-1]}</button>
+  `).join("");
+
+  const vmBtn=`<button class="view-btn" onclick="toggleVm()">${curVm==="todas"?"▤ por área":"▦ todo junto"}</button>`;
+
+  function tableHTML(list){
+    const heads=wDays.map(d=>`
+      <th>
+        <span class="dow">${d.dow}</span>
+        <span class="dn ${d.iso===TODAY?"today":""}">${d.d}</span>
+      </th>`).join("");
+
+    const rows=list.map(task=>{
+      const rel=wDays.filter(d=>task.days.includes(d.dow));
+      const pct=rel.length>0
+        ?Math.round(rel.reduce((s,d)=>s+sVal(rec[`d_${task.id}_${d.iso}`]||""),0)/rel.length*100)
+        :null;
+
+      const cells=wDays.map(d=>{
+        const k=`d_${task.id}_${d.iso}`;
+        const on=task.days.includes(d.dow);
+        if(!on) return `<td class="cell-center"><span class="dash">—</span></td>`;
+        const v=rec[k]||"";
+        const cls=v==="✓"?"done":v==="½"?"half":v==="✗"?"miss":"";
+        return `<td class="cell-center"><button class="sbtn ${cls}" onclick="cycle('${k}')">${v||"·"}</button></td>`;
+      }).join("");
+
+      const pctTd=pct!=null
+        ?`<td class="cell-center"><span class="pct-val" style="color:${pctCol(pct)}">${pct}%</span></td>`
+        :`<td class="cell-center"><span style="color:#1e1e1e">—</span></td>`;
+
+      return `<tr><td class="lbl">${task.label}</td>${cells}${pctTd}</tr>`;
+    }).join("");
+
+    return `<div class="tbl-wrap"><table>
+      <thead><tr><th class="lbl">Hábito</th>${heads}<th>%</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }
+
+  let body="";
+  if(curVm==="todas"){
+    body=tableHTML(tasks);
+  } else {
+    AREAS.forEach(a=>{
+      const t=tasks.filter(x=>x.area===a);
+      if(!t.length)return;
+      const ac=AREA_COLOR[a];
+      body+=`<div class="area-hdr" style="border-color:${ac}33">
+        <div class="area-dot" style="background:${ac}"></div>
+        <span class="area-name" style="color:${ac}">${a.toUpperCase()}</span>
+      </div>${tableHTML(t)}`;
+    });
+  }
+
+  return `<div class="week-bar">${weekBtns}<div class="divider"></div>${vmBtn}</div>${areaFilterHTML()}${body}`;
+}
+
+function renderSemanal(){
+  const filtered=WEEKLY.filter(t=>curAf==="Todas"||t.area===curAf);
+  let html=areaFilterHTML();
+  [1,2,3,4].forEach(w=>{
+    const wt=filtered.filter(t=>t.week===w);
+    if(!wt.length)return;
+    const sc=wt.reduce((s,t)=>s+sVal(rec[`w_${t.id}`]||""),0);
+    const pct=Math.round(sc/wt.length*100);
+    const open=openWk===w;
+    const rows=open?wt.map(t=>taskRowHTML(`w_${t.id}`,t.label,t.deadline||null,curAf==="Todas",t.area)).join(""):"";
+    html+=`<div>
+      <button class="sec-btn ${open?"open":""}" onclick="toggleWk(${w})">
+        <span class="sec-label">SEMANA ${w}</span>
+        ${barHTML(pct)}
+        <span class="sec-pct" style="color:${pctCol(pct)}">${pct}%</span>
+        <span class="sec-arrow">${open?"▲":"▼"}</span>
+      </button>
+      ${rows}
+    </div>`;
+  });
+  return html;
+}
+
+function renderProyecto(){
+  const filtered=ONCE.filter(t=>curAf==="Todas"||t.area===curAf);
+  let html=areaFilterHTML();
+  AREAS.forEach(a=>{
+    const tasks=filtered.filter(t=>t.area===a);
+    if(!tasks.length)return;
+    const ac=AREA_COLOR[a];
+    const sc=tasks.reduce((s,t)=>s+sVal(rec[`o_${t.id}`]||""),0);
+    const pct=Math.round(sc/tasks.length*100);
+    const done=tasks.filter(t=>rec[`o_${t.id}`]==="✓").length;
+    const open=openOa===a;
+    const rows=open?tasks.map(t=>taskRowHTML(`o_${t.id}`,t.label,t.deadline||null,false,t.area)).join(""):"";
+    html+=`<div>
+      <button class="sec-btn ${open?"open":""}" style="${open?`border-color:${ac};background:${ac}11`:""}" onclick="toggleOa('${a}')">
+        <div class="area-dot" style="background:${ac}"></div>
+        <span class="sec-label" style="color:${ac}">${a.toUpperCase()}</span>
+        <span style="font-size:9px;color:#555;margin-right:4px">${done}/${tasks.length}</span>
+        ${barHTML(pct)}
+        <span class="sec-pct" style="color:${pctCol(pct)}">${pct}%</span>
+        <span class="sec-arrow">${open?"▲":"▼"}</span>
+      </button>
+      ${rows}
+    </div>`;
+  });
+  return html;
+}
+
+function renderGrafica(){
+  const WK_BOUNDS=[[4,10],[11,17],[18,24],[25,31]];
+
+  function weekPct(fa,w){
+    const i=w-1;
+    const s=`2026-05-${String(WK_BOUNDS[i][0]).padStart(2,"0")}`;
+    const e=`2026-05-${String(WK_BOUNDS[i][1]).padStart(2,"0")}`;
+    const wDays=MAY.filter(d=>d.week===w);
+    let total=0,score=0;
+    DAILY.filter(t=>fa==="Todas"||t.area===fa).forEach(t=>wDays.filter(d=>t.days.includes(d.dow)).forEach(d=>{total++;score+=sVal(rec[`d_${t.id}_${d.iso}`]||"");}));
+    WEEKLY.filter(t=>(fa==="Todas"||t.area===fa)&&t.week===w).forEach(t=>{total++;score+=sVal(rec[`w_${t.id}`]||"");});
+    ONCE.filter(t=>(fa==="Todas"||t.area===fa)&&t.deadline&&t.deadline>=s&&t.deadline<=e).forEach(t=>{total++;score+=sVal(rec[`o_${t.id}`]||"");});
+    return total>0?Math.round(score/total*100):0;
+  }
+
+  let gT=0,gS=0;
+  DAILY.forEach(t=>MAY.filter(d=>t.days.includes(d.dow)).forEach(d=>{gT++;gS+=sVal(rec[`d_${t.id}_${d.iso}`]||"");}));
+  WEEKLY.forEach(t=>{gT++;gS+=sVal(rec[`w_${t.id}`]||"");});
+  ONCE.forEach(t=>{gT++;gS+=sVal(rec[`o_${t.id}`]||"");});
+  const gP=gT>0?Math.round(gS/gT*100):0;
+  const gCol=gP>=80?"#ffffff":gP>=50?"#ff8800":"#cc2200";
+  const gSt=gP>=80?"✓ PARETO CUMPLIDO":gP>=50?"— EN PROGRESO":"✗ BAJO LA META";
+
+  // SVG line chart
+  const W=520,H=180,PL=36,PT=16,PB=36,PR=16;
+  const cW=W-PL-PR,cH=H-PT-PB;
+  const xs=[0,1,2,3].map(i=>PL+i/3*cW);
+  const ys=v=>PT+cH-(v/100)*cH;
+
+  const lines=[
+    {label:"Global",color:"#ffffff",width:2.5,data:[1,2,3,4].map(w=>weekPct("Todas",w))},
+    ...AREAS.map(a=>({label:a,color:AREA_COLOR[a],width:1.5,data:[1,2,3,4].map(w=>weekPct(a,w))})),
+  ];
+
+  function makePath(data){
+    const pts=data.map((v,i)=>[xs[i],ys(v)]);
+    if(pts.length<2)return"";
+    let d=`M ${pts[0][0]} ${pts[0][1]}`;
+    for(let i=0;i<pts.length-1;i++){
+      const [x0,y0]=pts[i],[x1,y1]=pts[i+1];
+      const cx=(x0+x1)/2;
+      d+=` C ${cx} ${y0}, ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  }
+
+  const gridLines=[0,25,50,75,100].map(v=>`
+    <line x1="${PL}" y1="${ys(v)}" x2="${W-PR}" y2="${ys(v)}"
+      stroke="${v===80?"#cc220044":"#1e1e1e"}" stroke-width="${v===80?1.5:1}"
+      stroke-dasharray="${v===80?"4 3":"none"}"/>
+    <text x="${PL-4}" y="${ys(v)+4}" text-anchor="end" fill="#444" font-size="9">${v}</text>
+  `).join("");
+
+  const wkLabels=[1,2,3,4].map((w,i)=>`
+    <text x="${xs[i]}" y="${H-6}" text-anchor="middle" fill="#444" font-size="9">S${w}</text>
+  `).join("");
+
+  const linesHTML=lines.map(l=>{
+    const dots=l.data.map((v,i)=>`<circle cx="${xs[i]}" cy="${ys(v)}" r="${l.label==="Global"?4:3}" fill="${l.color}" opacity="${l.label==="Global"?1:.8}"/>`).join("");
+    return `<path d="${makePath(l.data)}" fill="none" stroke="${l.color}" stroke-width="${l.width}" stroke-opacity="${l.label==="Global"?1:.7}"/>${dots}`;
+  }).join("");
+
+  const legend80=`<text x="${W-PR+2}" y="${ys(80)+4}" fill="#cc2200" font-size="8">80%</text>`;
+
+  const legendItems=lines.map(l=>`
+    <div class="leg-item">
+      <div class="leg-line" style="background:${l.color}"></div>
+      <span class="leg-lbl">${l.label}</span>
+    </div>`).join("");
+
+  // Area bars
+  const areaBars=AREAS.map(a=>{
+    let t=0,s=0;
+    DAILY.filter(x=>x.area===a).forEach(x=>MAY.filter(d=>x.days.includes(d.dow)).forEach(d=>{t++;s+=sVal(rec[`d_${x.id}_${d.iso}`]||"");}));
+    WEEKLY.filter(x=>x.area===a).forEach(x=>{t++;s+=sVal(rec[`w_${x.id}`]||"");});
+    ONCE.filter(x=>x.area===a).forEach(x=>{t++;s+=sVal(rec[`o_${x.id}`]||"");});
+    const p=t>0?Math.round(s/t*100):0;
+    const ac=AREA_COLOR[a];
+    const fill=p>=80?`linear-gradient(90deg,${ac},#fff)`:ac;
+    const sh=p>=80?"0 0 5px rgba(255,255,255,.25)":"none";
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:10px;color:${ac};font-weight:700">${a}</span>
+        <span style="font-size:10px;font-weight:700;color:${pctCol(p)}">${p}%</span>
+      </div>
+      <div style="height:6px;border-radius:2px;background:#1e1e1e;overflow:hidden">
+        <div style="width:${p}%;height:100%;background:${fill};box-shadow:${sh};transition:width .4s;min-width:${p>0?2:0}px"></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+    <div class="global-card" style="border-color:${gP>=80?"rgba(255,255,255,.25)":"#1e1e1e"};box-shadow:${gP>=80?"0 0 30px rgba(255,255,255,.05)":"none"}">
+      <div>
+        <div style="font-size:9px;color:#555;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px">Cumplimiento Global</div>
+        <div class="global-num" style="color:${gCol};text-shadow:${gP>=80?"0 0 24px rgba(255,255,255,.4)":"none"}">${gP}<span style="font-size:20px">%</span></div>
+        <div class="global-sub">${Math.round(gS)}/${gT} pts · meta pareto: 80%</div>
+      </div>
+      <div style="flex:1;min-width:120px">
+        ${barHTML(gP,6)}
+        <div class="global-status" style="color:${gCol}">${gSt}</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Curvas de avance semanal</div>
+      <svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible">
+        ${gridLines}${legend80}${wkLabels}${linesHTML}
+      </svg>
+      <div class="legend">${legendItems}</div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Acumulado por área</div>
+      ${areaBars}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+function render(){
+  const content=document.getElementById("content");
+  if(curTab==="diario")     content.innerHTML=renderDiario();
+  else if(curTab==="semanal")  content.innerHTML=renderSemanal();
+  else if(curTab==="proyecto") content.innerHTML=renderProyecto();
+  else                         content.innerHTML=renderGrafica();
+
+  document.querySelectorAll(".tab-btn").forEach(b=>{
+    b.classList.toggle("active",b.textContent.trim().toLowerCase()===
+      {diario:"diario",semanal:"semanal",proyecto:"proyectos",grafica:"gráfica"}[curTab]);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════
+function showTab(t){curTab=t;curAf="Todas";render();}
+function setWeek(w){curWeek=w;render();}
+function setAf(a){curAf=a;render();}
+function toggleVm(){curVm=curVm==="todas"?"area":"todas";render();}
+function toggleWk(w){openWk=openWk===w?null:w;render();}
+function toggleOa(a){openOa=openOa===a?null:a;render();}
+
+render();
+</script>
+</body>
+</html>
